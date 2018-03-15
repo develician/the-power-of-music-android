@@ -1,18 +1,31 @@
 package com.example.user.the_power_of_music;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.github.kittinunf.fuel.Fuel;
-import com.github.kittinunf.fuel.core.FuelError;
-import com.github.kittinunf.fuel.core.Handler;
-import com.github.kittinunf.fuel.core.Request;
-import com.github.kittinunf.fuel.core.Response;
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.JSONArrayRequestListener;
+import com.androidnetworking.interfaces.ParsedRequestListener;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
-import java.io.InputStream;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,35 +33,147 @@ public class MainActivity extends AppCompatActivity {
     PostListAdapter postListAdapter;
     ArrayList<PostItem> postItemArrayList;
 
+    public class PostItemCallResponse {
+        @SerializedName("list")
+        List list;
+        @SerializedName("title")
+        String title;
+        @SerializedName("body")
+        String body;
+        @SerializedName("cover")
+        String cover;
+        @SerializedName("artist")
+        String artist;
+        @SerializedName("publishedDate")
+        String publishedDate;
+        @SerializedName("tags")
+        ArrayList<String> tags;
+
+
+    }
+
+    public class List {
+        @SerializedName("name")
+        ArrayList<String> name;
+        @SerializedName("track")
+        ArrayList<String> track;
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Fuel.get("https://api.nasa.gov/planetary/apod?api_key=seR6SviZPV6pVgI6Jsj4SlmsA4nBGf23V0vk8XZG").responseString(new Handler<String>() {
-            @Override
-            public void success(Request request, Response response, String s) {
-                Log.d("result: ", s);
-            }
-
-            @Override
-            public void failure(Request request, Response response, FuelError fuelError) {
-                Log.d("error: ", fuelError.toString());
-            }
-        });
-
-        listContainer = (ListView) findViewById(R.id.listContainer);
+        AndroidNetworking.initialize(getApplicationContext());
 
         postItemArrayList = new ArrayList<>();
-        postItemArrayList.add(new PostItem("Album Title!", "Content......!!!!", "Artist Name", "2018-08-13", "cover.jpg"));
-        postItemArrayList.add(new PostItem("Title!", "Content......!!!!", "Artist Name", "2018-08-13", "cover.jpg"));
-        postItemArrayList.add(new PostItem("Album!", "Content......!!!!", "Artist Name", "2018-08-13", "cover.jpg"));
-        postItemArrayList.add(new PostItem("Title!", "Content......!!!!", "Artist Name", "2018-08-13", "cover.jpg"));
-        postItemArrayList.add(new PostItem("Album !!!!!!", "Content......!!!!", "Artist Name", "2018-08-13", "cover.jpg"));
-        postItemArrayList.add(new PostItem("Album Title!", "Content......!!!!", "Artist Name", "2018-08-13", "cover.jpg"));
 
-        postListAdapter = new PostListAdapter(MainActivity.this, postItemArrayList);
-        listContainer.setAdapter(postListAdapter);
+
+        AndroidNetworking.get("http://192.168.0.23:4000/api/post")
+                .build()
+                .getAsJSONArray(new JSONArrayRequestListener() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            JSONObject result = null;
+                            PostItemCallResponse postItemCallResponse = null;
+                            for(int i = 0;i<response.length();i++){
+                                result = (JSONObject) response.getJSONObject(i);
+                                postItemCallResponse = new Gson().fromJson(result.toString(), PostItemCallResponse.class);
+                                postItemArrayList.add(new PostItem(postItemCallResponse.list.name,
+                                                                    postItemCallResponse.list.track,
+                                                                    postItemCallResponse.title,
+                                        postItemCallResponse.body,
+                                        postItemCallResponse.artist,
+                                        postItemCallResponse.publishedDate,
+                                        "http://192.168.0.23:4000/uploads/" + postItemCallResponse.cover,
+                                        postItemCallResponse.tags));
+
+                            }
+                            listContainer = (ListView) findViewById(R.id.listContainer);
+                            postListAdapter = new PostListAdapter(MainActivity.this, postItemArrayList);
+                            listContainer.setAdapter(postListAdapter);
+                            listContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                    Intent playerViewIntent = new Intent(MainActivity.this, PostActivity.class);
+                                    playerViewIntent.putExtra("title", postItemArrayList.get(i).getTitle());
+                                    playerViewIntent.putExtra("cover", postItemArrayList.get(i).getCover());
+                                    playerViewIntent.putExtra("artist", postItemArrayList.get(i).getArtist());
+                                    playerViewIntent.putExtra("name", postItemArrayList.get(i).getName());
+
+                                    MainActivity.this.startActivity(playerViewIntent);
+                                }
+                            });
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(ANError anError) {
+
+                    }
+                });
+//                .getAsObjectList(PostItem.class, new ParsedRequestListener<List<PostItem>>() {
+//
+//                    @Override
+//                    public void onResponse(List<PostItem> posts) {
+//                        PostItem postItem = null;
+//                       for(PostItem post : posts) {
+//                           SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+//                           SimpleDateFormat outputFormat= new SimpleDateFormat("yyyy/MM/dd");
+//                           String parsedDate = "";
+//                           try {
+//                               parsedDate = outputFormat.format(inputFormat.parse(post.getPublishedDate()));
+//
+//                           } catch (ParseException e) {
+//                               e.printStackTrace();
+//                           }
+//                           postItem = new PostItem(
+//                                   post.getList(),
+//                                   post.getTitle(),
+//                                    post.getBody(),
+//                                    post.getArtist(),
+//                                    parsedDate,
+//                                    "http://192.168.0.23:4000/uploads/" + post.getCover(),
+//                                   post.getTags());
+////                           try {
+//                           try {
+//                               Log.d("tag", "tags: " + post.getList().getJSONObject("list"));
+//                           } catch (JSONException e) {
+//                               e.printStackTrace();
+//                           }
+////                           } catch (JSONException e) {
+////                               e.printStackTrace();
+////                           }
+//                           postItemArrayList.add(postItem);
+//                       }
+//
+//                        listContainer = (ListView) findViewById(R.id.listContainer);
+//                        postListAdapter = new PostListAdapter(MainActivity.this, postItemArrayList);
+//                        listContainer.setAdapter(postListAdapter);
+//                        listContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                            @Override
+//                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                                Intent playerViewIntent = new Intent(MainActivity.this, PostActivity.class);
+//                                playerViewIntent.putExtra("title", postItemArrayList.get(i).getTitle());
+//                                playerViewIntent.putExtra("cover", postItemArrayList.get(i).getCover());
+//                                playerViewIntent.putExtra("artist", postItemArrayList.get(i).getArtist());
+//                                MainActivity.this.startActivity(playerViewIntent);
+//                            }
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onError(ANError anError) {
+//
+//                    }
+//                });
+
+
+
 
 
 

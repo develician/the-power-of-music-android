@@ -1,12 +1,16 @@
 package com.example.user.the_power_of_music;
 
 import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -55,7 +59,9 @@ public class PostListAdapter extends BaseAdapter {
             publishedDate = (TextView) view.findViewById(R.id.publishedDate);
             body = (TextView) view.findViewById(R.id.body);
 
-            coverImage.setImageResource(R.drawable.albumcoversample);
+
+//            coverImage.setImageURI();
+            Picasso.get().load(postItemArrayList.get(i).getCover()).into(coverImage);
             albumTitle.setText(postItemArrayList.get(i).getTitle());
             artist.setText(postItemArrayList.get(i).getArtist());
             publishedDate.setText(postItemArrayList.get(i).getPublishedDate());
