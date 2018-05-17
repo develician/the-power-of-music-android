@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         postItemArrayList = new ArrayList<>();
 
 
-        AndroidNetworking.get("http://192.168.0.23:4000/api/post")
+        AndroidNetworking.get("http://52.78.31.220/api/post")
                 .build()
                 .getAsJSONArray(new JSONArrayRequestListener() {
                     @Override
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                                         postItemCallResponse.body,
                                         postItemCallResponse.artist,
                                         postItemCallResponse.publishedDate,
-                                        "http://192.168.0.23:4000/uploads/" + postItemCallResponse.cover,
+                                        "http://52.78.31.220/uploads/" + postItemCallResponse.cover,
                                         postItemCallResponse.tags));
 
                             }
@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
                                     playerViewIntent.putExtra("cover", postItemArrayList.get(i).getCover());
                                     playerViewIntent.putExtra("artist", postItemArrayList.get(i).getArtist());
                                     playerViewIntent.putExtra("name", postItemArrayList.get(i).getName());
-
+                                    playerViewIntent.putExtra("track", postItemArrayList.get(i).getTrack());
+                                    Log.d("asdasdasd", postItemArrayList.get(i).getTrack() + "");
                                     MainActivity.this.startActivity(playerViewIntent);
                                 }
                             });
@@ -116,63 +117,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-//                .getAsObjectList(PostItem.class, new ParsedRequestListener<List<PostItem>>() {
-//
-//                    @Override
-//                    public void onResponse(List<PostItem> posts) {
-//                        PostItem postItem = null;
-//                       for(PostItem post : posts) {
-//                           SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-//                           SimpleDateFormat outputFormat= new SimpleDateFormat("yyyy/MM/dd");
-//                           String parsedDate = "";
-//                           try {
-//                               parsedDate = outputFormat.format(inputFormat.parse(post.getPublishedDate()));
-//
-//                           } catch (ParseException e) {
-//                               e.printStackTrace();
-//                           }
-//                           postItem = new PostItem(
-//                                   post.getList(),
-//                                   post.getTitle(),
-//                                    post.getBody(),
-//                                    post.getArtist(),
-//                                    parsedDate,
-//                                    "http://192.168.0.23:4000/uploads/" + post.getCover(),
-//                                   post.getTags());
-////                           try {
-//                           try {
-//                               Log.d("tag", "tags: " + post.getList().getJSONObject("list"));
-//                           } catch (JSONException e) {
-//                               e.printStackTrace();
-//                           }
-////                           } catch (JSONException e) {
-////                               e.printStackTrace();
-////                           }
-//                           postItemArrayList.add(postItem);
-//                       }
-//
-//                        listContainer = (ListView) findViewById(R.id.listContainer);
-//                        postListAdapter = new PostListAdapter(MainActivity.this, postItemArrayList);
-//                        listContainer.setAdapter(postListAdapter);
-//                        listContainer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                            @Override
-//                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                                Intent playerViewIntent = new Intent(MainActivity.this, PostActivity.class);
-//                                playerViewIntent.putExtra("title", postItemArrayList.get(i).getTitle());
-//                                playerViewIntent.putExtra("cover", postItemArrayList.get(i).getCover());
-//                                playerViewIntent.putExtra("artist", postItemArrayList.get(i).getArtist());
-//                                MainActivity.this.startActivity(playerViewIntent);
-//                            }
-//                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(ANError anError) {
-//
-//                    }
-//                });
-
-
 
 
 

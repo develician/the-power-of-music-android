@@ -67,6 +67,7 @@ public class PostListAdapter extends BaseAdapter {
             publishedDate.setText(postItemArrayList.get(i).getPublishedDate());
             body.setText(postItemArrayList.get(i).getBody());
 
+            Log.d("####", i + "");
         }
         return view;
     }

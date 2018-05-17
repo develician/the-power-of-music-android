@@ -7,32 +7,34 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 /**
- * Created by paul on 2018. 3. 16..
+ * Created by paul on 2018. 3. 18..
  */
 
-public class TrackInfoListAdapter extends BaseAdapter {
+public class TrackInfoAdapter extends BaseAdapter {
     Context context;
-    ArrayList<TrackInfoList> trackInfoListArrayList;
+    ArrayList<TrackInfo> trackInfoArrayList;
 
-    TextView trackIndex;
     TextView trackName;
+    TextView trackIndex;
 
-    public TrackInfoListAdapter(Context context, ArrayList<TrackInfoList> trackInfoListArrayList) {
+    public TrackInfoAdapter(Context context, ArrayList<TrackInfo> trackInfoArrayList) {
         this.context = context;
-        this.trackInfoListArrayList = trackInfoListArrayList;
+        this.trackInfoArrayList = trackInfoArrayList;
     }
 
     @Override
     public int getCount() {
-        return this.trackInfoListArrayList.size();
+        return this.trackInfoArrayList.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return this.trackInfoListArrayList.get(i);
+        return this.trackInfoArrayList.get(i);
     }
 
     @Override
@@ -44,12 +46,11 @@ public class TrackInfoListAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         if(view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.track_info_list, null);
-
             trackIndex = (TextView) view.findViewById(R.id.trackIndex);
             trackName = (TextView) view.findViewById(R.id.trackName);
 
-            trackIndex.setText(trackInfoListArrayList.get(i).getTrackIndex() + "");
-            trackName.setText(trackInfoListArrayList.get(i).getTrackName());
+            trackIndex.setText(trackInfoArrayList.get(i).getIndex());
+            trackName.setText(trackInfoArrayList.get(i).getTrackName());
 
 
         }
